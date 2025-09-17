@@ -4,6 +4,6 @@ services:
     container_name: slideshow
     ports:
       - "8080:5000"
-    volumes:
-      - /volume1/docker/slideshow/uploads:/app/uploads
+    # volumes:
+      # - /volume1/docker/slideshow/uploads:/app/uploads
     restart: unless-stopped
