@@ -1,6 +1,6 @@
 services:
   slideshow:
-    build: https://github.com/LeonHolli/Slideshow#
+    build: https://github.com/LeonHolli/Slideshow.git
     container_name: slideshow
     ports:
       - "8080:5000"
