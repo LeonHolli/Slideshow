@@ -1,0 +1,10 @@
+services:
+  slideshow:
+    build: .
+    container_name: slideshow
+    ports:
+      - "8080:5000"
+    volumes:
+      - /volume1/fotos:/data/uploads
+
+    restart: unless-stopped

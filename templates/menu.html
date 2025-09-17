@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bilder-Diashow – Menü</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #111;
+        color: white;
+        margin: 0;
+        padding: 20px;
+      }
+      h1 {
+        margin-bottom: 20px;
+      }
+      .show-list {
+        margin-top: 30px;
+      }
+      .show-item {
+        margin: 10px 0;
+      }
+      a {
+        color: #0af;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .rename-form {
+        display: inline;
+        margin-left: 10px;
+      }
+      .rename-input {
+        width: 120px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Bilder-Diashow</h1>
+
+    <h2>Neue ZIP hochladen</h2>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="file" name="zipfile" accept=".zip" required />
+      <button type="submit">Hochladen</button>
+    </form>
+
+    <div class="show-list">
+      <h2>Vorhandene Shows</h2>
+      {% if shows %}
+      <ul>
+        {% for s in shows %}
+        <li class="show-item">
+          <a href="/show/{{ s }}">Show {{ s }}</a>
+
+          <!-- Rename -->
+          <form class="rename-form" method="POST" action="/rename">
+            <input type="hidden" name="old" value="{{ s }}" />
+            <input
+              type="text"
+              name="new"
+              class="rename-input"
+              placeholder="Neuer Name"
+              required
+            />
+            <button type="submit">Umbenennen</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>Noch keine Shows hochgeladen.</p>
+      {% endif %}
+    </div>
+  </body>
+</html>
