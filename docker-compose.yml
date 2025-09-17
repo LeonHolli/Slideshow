@@ -1,10 +1,9 @@
 services:
   slideshow:
-    build: .
+    build: https://github.com/LeonHolli/Slideshow#
     container_name: slideshow
     ports:
       - "8080:5000"
     volumes:
-      - /volume1/fotos:/data/uploads
-
+      - /volume1/docker/slideshow/uploads:/app/uploads
     restart: unless-stopped
