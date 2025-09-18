@@ -40,3 +40,4 @@ Bei Portainer als git Repo:
   ```
   sudo reboot
   ```
+  - Automatische Login und start in Vollbild Chromium
