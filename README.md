@@ -8,6 +8,7 @@ Bei Portainer als git Repo:
 - Repository auswählen
 - Bei URL: https://github.com/LeonHolli/Slideshow.git
 - Deploy Stack
+- *ERSETZE DIE SERVERADRESSE*
 - Website ist nun erreichbar unter http://[SERVERADRESSE]:9080
 
 # Einrichten eines PI als Diashow Bildschirm
@@ -22,7 +23,7 @@ Bei Portainer als git Repo:
   mkdir -p ~/.config/autostart
   nano ~/.config/autostart/kiosk.desktop
   ```
-- In die geöffnete Datei:
+- In die geöffnete Datei (*ERSETZE DIE SERVERADRESSE*):
   ```
   [Desktop Entry]
   Type=Application
