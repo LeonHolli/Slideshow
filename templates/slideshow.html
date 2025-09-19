@@ -46,9 +46,10 @@
     <button id="backButton" onclick="window.location.href='/'">⬅</button>
 
     <script>
-      // Slideshow starten
       document.addEventListener("DOMContentLoaded", () => {
-        startSlideshow("{{ folder }}");
+        const folder = "{{ folder }}";
+        const interval = parseInt("{{ interval * 1000 }}", 10);
+        startSlideshow(folder, interval);
         setupBackButtonAutoHide();
       });
 

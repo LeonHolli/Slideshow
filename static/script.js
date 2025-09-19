@@ -2,7 +2,7 @@ let images = [];
 let index = 0;
 let timer;
 
-function startSlideshow(folder) {
+function startSlideshow(folder, interval = 5000) {
   fetch(`/list/${folder}`)
     .then((res) => res.json())
     .then((data) => {
@@ -11,7 +11,7 @@ function startSlideshow(folder) {
       if (timer) clearInterval(timer);
       if (images.length > 0) {
         showImage(images[0]);
-        timer = setInterval(nextImage, 5000); // alle 5 Sekunden
+        timer = setInterval(nextImage, interval); // dynamisch!
       }
     });
 }
