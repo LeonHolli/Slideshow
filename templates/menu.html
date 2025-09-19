@@ -14,6 +14,25 @@
         margin-bottom: 20px;
       }
 
+      /* Reload-Button oben rechts */
+      #reload-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #0af;
+        color: #111;
+        border: none;
+        padding: 10px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        z-index: 1000;
+      }
+      #reload-btn:hover {
+        background-color: #08c;
+      }
+
       .container {
         display: flex;
         flex-wrap: wrap;
@@ -57,6 +76,11 @@
     </style>
   </head>
   <body>
+    <!-- Reload-Button -->
+    <button id="reload-btn" onclick="location.reload()">
+      ↻ Seite neu laden
+    </button>
+
     <h1>Bilder-Diashow</h1>
 
     <div class="container">
