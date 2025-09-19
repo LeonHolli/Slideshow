@@ -8,7 +8,7 @@ Bei Portainer als git Repo:
 - Repository auswählen
 - Bei URL: https://github.com/LeonHolli/Slideshow.git
 - Deploy Stack
-- Website ist nun erreichbar unter http://[SERVERADRESSE]:8080
+- Website ist nun erreichbar unter http://[SERVERADRESSE]:9080
 
 # Einrichten eines PI als Diashow Bildschirm
 - Raspberry mit Desktop OS
@@ -27,7 +27,7 @@ Bei Portainer als git Repo:
   [Desktop Entry]
   Type=Application
   Name=TouchGUI
-  Exec=chromium-browser --noerrdialogs --kiosk http://192.168.2.122:8080/ --incognito --disable-restore-session-state
+  Exec=chromium-browser --noerrdialogs --kiosk http://[SERVERADRESSE]:9080/ --incognito --disable-restore-session-state
   StartupNotify=false
   ```
 - Falls Autologin nicht aktiv:
