@@ -3,15 +3,30 @@
   <head>
     <title>Bilder-Diashow – Menü</title>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: sans-serif;
-        background-color: #111;
-        color: white;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+        color: #e0e0e0;
         margin: 0;
         padding: 20px;
+        min-height: 100vh;
+        line-height: 1.6;
       }
+
       h1 {
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+        font-weight: 300;
+        text-align: center;
+        background: linear-gradient(45deg, #00bfff, #0080ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 2px 10px rgba(0, 191, 255, 0.3);
       }
 
       /* Reload-Button oben rechts */
@@ -19,59 +34,289 @@
         position: fixed;
         top: 20px;
         right: 20px;
-        background-color: #0af;
-        color: #111;
+        background: linear-gradient(45deg, #00bfff, #0080ff);
+        color: white;
         border: none;
-        padding: 10px 20px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 25px;
         cursor: pointer;
         z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
       }
+
       #reload-btn:hover {
-        background-color: #08c;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 191, 255, 0.4);
+        background: linear-gradient(45deg, #0080ff, #00bfff);
       }
 
       .container {
         display: flex;
         flex-wrap: wrap;
-        gap: 30px;
+        gap: 25px;
+        max-width: 1400px;
+        margin: 0 auto;
       }
 
       .card {
-        background: #1a1a1a;
-        padding: 20px;
-        border-radius: 10px;
-        flex: 1 1 300px;
+        background: rgba(25, 25, 25, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 20px;
+        flex: 1 1 320px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #00bfff, #0080ff, #00bfff);
+        border-radius: 20px 20px 0 0;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        border-color: rgba(0, 191, 255, 0.3);
+      }
+
+      .card h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #00bfff;
+        font-size: 1.4rem;
+        font-weight: 500;
       }
 
       .show-item {
-        margin: 10px 0;
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
       }
+
+      .show-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(0, 191, 255, 0.3);
+      }
+
       a {
-        color: #0af;
+        color: #00bfff;
         text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
       }
+
       a:hover {
-        text-decoration: underline;
+        color: #40cfff;
+        text-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
       }
+
       .rename-form {
         display: inline;
-        margin-left: 10px;
+        margin-left: 15px;
       }
+
       .rename-input {
-        width: 120px;
+        width: 130px;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .rename-input:focus {
+        outline: none;
+        border-color: #00bfff;
+        box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
       }
 
       .schedule-entry {
         display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
       }
 
       button {
         cursor: pointer;
+        background: linear-gradient(45deg, #333, #444);
+        color: #e0e0e0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      button:hover {
+        background: linear-gradient(45deg, #444, #555);
+        border-color: rgba(0, 191, 255, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      button:hover::before {
+        left: 100%;
+      }
+
+      button[type="submit"] {
+        background: linear-gradient(45deg, #00bfff, #0080ff);
+        border-color: transparent;
+        color: white;
+      }
+
+      button[type="submit"]:hover {
+        background: linear-gradient(45deg, #0080ff, #00bfff);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
+      }
+
+      input[type="file"] {
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #e0e0e0;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+      }
+
+      input[type="file"]:hover {
+        border-color: rgba(0, 191, 255, 0.3);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      input[type="number"],
+      input[type="text"],
+      input[type="time"] {
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      input[type="number"]:focus,
+      input[type="text"]:focus,
+      input[type="time"]:focus {
+        outline: none;
+        border-color: #00bfff;
+        box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #00bfff;
+        cursor: pointer;
+      }
+
+      label {
+        color: #b0b0b0;
+        font-weight: 500;
+        margin-bottom: 8px;
+        display: inline-block;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        margin: 0;
+      }
+
+      form {
+        margin: 0;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .card {
+          flex: 1 1 100%;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .show-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .rename-form {
+          margin-left: 0;
+        }
+      }
+
+      /* Scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 191, 255, 0.3);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 191, 255, 0.5);
       }
     </style>
   </head>
@@ -100,7 +345,23 @@
         <ul>
           {% for s in shows %}
           <li class="show-item">
+            <!-- Autoplay Checkbox -->
+            <form
+              method="POST"
+              action="/set_autoplay"
+              style="display: inline"
+              class="autoplay-form"
+            >
+              <input type="hidden" name="autoplay" value="{{ s }}" />
+              <input type="checkbox" onclick="handleAutoplayClick(this);
+              this.form.submit();" {% if autoplay_show == s %}checked{% endif %}
+              />
+            </form>
+
+            <!-- Link zur Show -->
             <a href="/show/{{ s }}">Show {{ s }}</a>
+
+            <!-- Rename separat -->
             <form class="rename-form" method="POST" action="/rename">
               <input type="hidden" name="old" value="{{ s }}" />
               <input
@@ -186,11 +447,43 @@
         const div = document.createElement("div");
         div.classList.add("schedule-entry");
         div.innerHTML = `
-          <input type="time" name="start" class="border p-2 rounded">
-          <input type="time" name="end" class="border p-2 rounded">
-        `;
+              <input type="time" name="start" class="border p-2 rounded">
+              <input type="time" name="end" class="border p-2 rounded">
+            `;
         document.getElementById("schedule-list").appendChild(div);
       }
+
+      // Nur eine Checkbox aktiv halten
+      function handleAutoplayClick(el) {
+        document.querySelectorAll("input[type='checkbox']").forEach((cb) => {
+          if (cb !== el) cb.checked = false;
+        });
+      }
+
+      // --- Autoplay-Start-Logik ---
+      document.addEventListener("DOMContentLoaded", () => {
+        // Wert aus Flask einbetten – immer als String
+        const autoplayShow = "{{ autoplay_show or '' }}";
+
+        const forms = document.querySelectorAll(".autoplay-form");
+
+        // Unterdrücken, wenn gerade gespeichert wurde
+        forms.forEach((form) => {
+          form.addEventListener("submit", () => {
+            sessionStorage.setItem("suppress_autoplay_once", "1");
+          });
+        });
+
+        const suppress = sessionStorage.getItem("suppress_autoplay_once");
+        if (suppress) {
+          sessionStorage.removeItem("suppress_autoplay_once");
+          return; // nicht autostarten
+        }
+
+        if (autoplayShow) {
+          window.location.href = "/show/" + encodeURIComponent(autoplayShow);
+        }
+      });
     </script>
   </body>
 </html>

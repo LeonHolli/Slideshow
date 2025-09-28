@@ -9,12 +9,15 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for
 from kasa import SmartPlug
 import logging
+import tempfile
 
 app = Flask(__name__)
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-SCHEDULE_FILE = "schedules.json"
+CONFIG_DIR = "config"
+os.makedirs(CONFIG_DIR, exist_ok=True)
+SCHEDULE_FILE = os.path.join(CONFIG_DIR, "schedules.json")
 
 # ==============================
 # LOGGING
@@ -24,27 +27,49 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 # ==============================
 # KONFIGURATION LADEN / SPEICHERN
 # ==============================
+def default_config():
+    return {
+        "schedules": [],
+        "plug_ip": "192.168.2.193",
+        "autoplay_show": ""
+    }
+
 def load_config():
-    if os.path.exists(SCHEDULE_FILE):
-        with open(SCHEDULE_FILE, "r") as f:
-            return json.load(f)
-    return {"schedules": [], "plug_ip": "192.168.2.193"}
+    if os.path.exists(SCHEDULE_FILE) and os.path.isfile(SCHEDULE_FILE):
+        try:
+            with open(SCHEDULE_FILE, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            logging.error(f"Fehler beim Laden der Konfig ({SCHEDULE_FILE}): {e}")
+            return default_config()
+    else:
+        return default_config()
 
 def save_config(config):
-    with open(SCHEDULE_FILE, "w") as f:
-        json.dump(config, f)
+    # atomar schreiben: in temp schreiben und mv
+    try:
+        fd, tmp = tempfile.mkstemp(dir=CONFIG_DIR, text=True)
+        with os.fdopen(fd, "w") as f:
+            json.dump(config, f, indent=2)
+        os.replace(tmp, SCHEDULE_FILE)
+    except Exception as e:
+        logging.error(f"Fehler beim Schreiben der Konfig ({SCHEDULE_FILE}): {e}")
 
 CONFIG = load_config()
+logging.info(f"CONFIG geladen: {CONFIG}")
 
 # ==============================
 # SMART PLUG
 # ==============================
 async def set_plug_state(state: bool):
     plug_ip = CONFIG.get("plug_ip")
+    if not plug_ip:
+        logging.error("Keine Plug-IP konfiguriert.")
+        return
     plug = SmartPlug(plug_ip)
     try:
         logging.info(f"🔌 Versuche Plug {plug_ip} {'EIN' if state else 'AUS'} zu schalten ...")
-        await plug.update()
+        await plug.update()  # aktualisieren
         if state:
             await plug.turn_on()
             logging.info("✅ Plug wurde eingeschaltet.")
@@ -55,10 +80,16 @@ async def set_plug_state(state: bool):
         logging.error(f"⚠️ Fehler beim Steuern des Plugs ({plug_ip}): {e}")
 
 def turn_pi_on():
-    asyncio.run(set_plug_state(True))
+    try:
+        asyncio.run(set_plug_state(True))
+    except Exception as e:
+        logging.error(f"Fehler beim turn_pi_on: {e}")
 
 def turn_pi_off():
-    asyncio.run(set_plug_state(False))
+    try:
+        asyncio.run(set_plug_state(False))
+    except Exception as e:
+        logging.error(f"Fehler beim turn_pi_off: {e}")
 
 @app.route("/pi/on")
 def pi_on():
@@ -71,29 +102,28 @@ def pi_off():
     return "⛔ Raspberry Pi ausgeschaltet (KP105 aus)"
 
 # ==============================
-# OFFLINE-ZEITEN
+# OFFLINE-ZEITEN (Scheduler)
 # ==============================
 def scheduler_loop():
     is_on = None  # None = unbekannt, True = an, False = aus
-
     while True:
-        schedules = CONFIG.get("schedules", [])
-        now = datetime.now().strftime("%H:%M")
-        in_offline = any(s["start"] <= now <= s["end"] for s in schedules)
+        try:
+            schedules = CONFIG.get("schedules", [])
+            now = datetime.now().strftime("%H:%M")
+            in_offline = any(s["start"] <= now <= s["end"] for s in schedules)
 
-        if in_offline:
-            # Wenn Pi noch an ist, ausschalten
-            if is_on is not False:
-                logging.info("⏰ Offline-Zeit erreicht – schalte Pi aus")
-                turn_pi_off()
-                is_on = False
-        else:
-            # Außerhalb der Offline-Zeit nur einschalten, wenn noch aus
-            if is_on is not True:
-                logging.info("✅ Offline-Zeit vorbei – schalte Pi ein")
-                turn_pi_on()
-                is_on = True
-
+            if in_offline:
+                if is_on is not False:
+                    logging.info("⏰ Offline-Zeit erreicht – schalte Pi aus")
+                    turn_pi_off()
+                    is_on = False
+            else:
+                if is_on is not True:
+                    logging.info("✅ Offline-Zeit vorbei – schalte Pi ein")
+                    turn_pi_on()
+                    is_on = True
+        except Exception as e:
+            logging.error(f"Fehler im Scheduler: {e}")
         time.sleep(60)
 
 threading.Thread(target=scheduler_loop, daemon=True).start()
@@ -119,6 +149,19 @@ def schedules():
     return redirect(url_for("index"))
 
 # ==============================
+# AUTOPLAY
+# ==============================
+@app.route("/set_autoplay", methods=["POST"])
+def set_autoplay():
+    global CONFIG
+    autoplay = request.form.get("autoplay", "").strip()
+    CONFIG["autoplay_show"] = autoplay
+    save_config(CONFIG)
+    logging.info(f"🎬 Autoplay-Show gesetzt: {autoplay}")
+    # Nach Änderung zurück ins Menü mit autoplay=1 → nur einmal Autostart
+    return redirect(url_for("index") + "?autoplay=1")
+
+# ==============================
 # SLIDESHOW & UPLOAD
 # ==============================
 @app.route("/", methods=["GET", "POST"])
@@ -130,8 +173,15 @@ def index():
         if file.filename == "":
             return "Leere Datei", 400
 
-        folder_id = str(uuid.uuid4())
-        folder_path = os.path.join(UPLOAD_DIR, folder_id)
+        # 📂 Namen aus ZIP-Datei ableiten
+        base_name = os.path.splitext(file.filename)[0]
+        folder_name = base_name
+        counter = 1
+        while os.path.exists(os.path.join(UPLOAD_DIR, folder_name)):
+            folder_name = f"{base_name}_{counter}"
+            counter += 1
+
+        folder_path = os.path.join(UPLOAD_DIR, folder_name)
         os.makedirs(folder_path, exist_ok=True)
 
         zip_path = os.path.join(folder_path, "upload.zip")
@@ -139,7 +189,7 @@ def index():
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(folder_path)
 
-        return redirect(url_for("slideshow", folder=folder_id))
+        return redirect(url_for("slideshow", folder=folder_name))
 
     shows = [f for f in os.listdir(UPLOAD_DIR) if os.path.isdir(os.path.join(UPLOAD_DIR, f))]
     return render_template(
@@ -147,8 +197,10 @@ def index():
         shows=shows,
         interval=SLIDESHOW_INTERVAL,
         schedules=CONFIG.get("schedules", []),
-        plug_ip=CONFIG.get("plug_ip", "")
+        plug_ip=CONFIG.get("plug_ip", ""),
+        autoplay_show=CONFIG.get("autoplay_show", "")
     )
+
 
 @app.route("/show/<folder>")
 def slideshow(folder):

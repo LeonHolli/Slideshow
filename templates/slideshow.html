@@ -43,7 +43,7 @@
   </head>
   <body>
     <img id="slideshow" src="" />
-    <button id="backButton" onclick="window.location.href='/'">⬅</button>
+    <button id="backButton" onclick="leaveShow()">⬅</button>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
@@ -72,6 +72,11 @@
         document.addEventListener("mousemove", showButton);
         document.addEventListener("click", showButton);
         document.addEventListener("keydown", showButton); // optional: bei Tastendruck
+      }
+
+      function leaveShow() {
+        sessionStorage.setItem("suppress_autoplay_once", "1");
+        window.location.href = "/";
       }
     </script>
   </body>
